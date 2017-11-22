@@ -6,9 +6,9 @@ def loadDataSet(filename):
     fr = open(filename)
     lines = fr.readlines()
     m = len(lines)  # num of training examples
-    n = len(lines[0].strip().split(',')) - 1    # num of features
-    X = np.ones((m, n + 1)) # matrix of training examples with extra ones at the first column
-    y = np.ones((m, 1)) # matrix of labels
+    n = len(lines[0].strip().split(',')) - 1  # num of features
+    X = np.ones((m, n + 1))  # matrix of training examples with extra ones at the first column
+    y = np.ones((m, 1))  # matrix of labels
     i = 0
     for line in lines:
         X[i, 1:] = map(float, line.strip().split(',')[:-1])
@@ -18,13 +18,16 @@ def loadDataSet(filename):
 
 
 def featureNormalize(X):
+    """
+    do feature normalization so that gradient descent can converge fastly
+    """
     mean = []
     std = []
     for i in range(1, X.shape[1]):
         mean.append(np.mean(X[:, i]))
         std.append(np.std(X[:, i]))
         X[:, i] = (X[:, i] - mean[-1]) / std[-1]
-    return X, mean, std # mean and std are needed for prediction
+    return X, mean, std  # mean and std are needed for prediction
 
 
 def batchGradientDescent(X, y, learning_rate=0.01, iterations=1500):
@@ -40,8 +43,13 @@ def batchGradientDescent(X, y, learning_rate=0.01, iterations=1500):
     return theta, cost
 
 
-def plotConvergence(iterations, cost):
-    plt.plot(range(1, iterations + 1), cost)
+def plotCost(cost):
+    """
+    plot the cost of each iteration
+    """
+    plt.plot(range(1, len(cost) + 1), cost)
+    plt.xlabel("number of iterations")
+    plt.ylabel("cost")
     plt.show()
 
 
@@ -54,6 +62,7 @@ def computeCost(X, y, theta):
 X, y = loadDataSet('ex1data2.txt')
 X, m, s = featureNormalize(X)
 theta, cost = batchGradientDescent(X, y, 0.01, 1500)
+plotCost(cost)
 x1 = float(raw_input("Enter the size of the house: "))
 x2 = float(raw_input("Enter the number of bedrooms: "))
 data = np.array([1, (x1 - m[0]) / s[0], (x2 - m[1]) / s[1]])

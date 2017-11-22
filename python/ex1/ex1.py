@@ -28,16 +28,13 @@ def plotData(X, y):
     plt.show()
 
 
-def plotDeciBoundary(X, y, learning_rate=0.01, iterations=1500):
+def plotDecisionBoundary(X, y, theta):
     plt.scatter(X[:, 1], y)
     plt.xlabel('Population of City in 10,000s')
     plt.ylabel('Profit in $10,000s')
-
-    theta = batchGradientDescent(X, y, learning_rate, iterations)
     x = range(4, 25)
     y = theta[0] + theta[1] * x
-    line, = plt.plot(x, y, label='learning rate = ' + str(learning_rate) + ' iter=' + str(iterations))
-    plt.legend(handles=[line])
+    plt.plot(x, y)
     plt.show()
 
 
@@ -59,14 +56,23 @@ def plotSurface(feat, y):
     plt.show()
 
 
-def batchGradientDescent(X, y, learning_rate, iterations):
+def plotCost(cost):
+    plt.plot(range(1, len(cost)+1), cost)
+    plt.xlabel("number of iterations")
+    plt.ylabel("cost")
+    plt.show()
+
+
+def batchGradientDescent(X, y, learning_rate=0.01, iterations=1500):
     m = X.shape[0]
     theta = np.zeros((2, 1))
+    cost = []
     for i in range(iterations):
         for j in range(2):
             theta[j, 0] = theta[j, 0] - learning_rate * (1.0 / m) * sum(
                 (np.dot(X, theta) - y) * X[:, j].reshape((m, 1)))
-    return theta
+        cost.append(computeCost(X, y, theta))
+    return theta, cost
 
 
 def computeCost(X, y, theta):
@@ -75,6 +81,18 @@ def computeCost(X, y, theta):
     return cost
 
 
+def normalEquation(X, y):
+    """
+    calculate theta by normal equation
+    """
+    temp1 = np.linalg.inv(np.dot(X.transpose(), X))
+    theta = np.dot(np.dot(temp1, X.transpose()), y)
+    return theta
+
+
 X, y = loadDataSet('ex1data1.txt')
-plotDeciBoundary(X, y, 0.01, 500)
+# theta = normalEquation(X, y)  # two methods for calculating theta
+theta, cost = batchGradientDescent(X, y, 0.01, 150)
+plotCost(cost)
+plotDecisionBoundary(X, y, theta)
 plotSurface(X, y)
